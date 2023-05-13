@@ -31,8 +31,9 @@ from sqlalchemy import (
     exc,
 )
 
-from sqlalchemy.orm import mapper, relationship, backref
+from sqlalchemy.orm import mapper, relationship, backref, registry
 # from sqlalchemy.sql.sqltypes import Integer
+
 
 from o2ims.domain import ocloud as ocloudModel
 from o2ims.domain import subscription_obj as subModel
@@ -44,6 +45,7 @@ from o2common.helper import o2logging
 logger = o2logging.get_logger(__name__)
 
 metadata = MetaData()
+mapper_registry = registry()
 
 ocloud = Table(
     "ocloud",
@@ -255,12 +257,12 @@ def start_o2ims_mappers(engine=None):
     logger.info("Starting O2 IMS mappers")
 
     # IMS Infrastruture Monitoring Mappering
-    mapper(alarmModel.AlarmEventRecord, alarm_event_record)
-    alarmdefinition_mapper = mapper(
+    mapper_registry.map_imperatively(alarmModel.AlarmEventRecord, alarm_event_record)
+    alarmdefinition_mapper = mapper_registry.map_imperatively(
         alarmModel.AlarmDefinition, alarm_definition)
-    mapper(alarmModel.ProbableCause, alarm_probable_cause)
-    mapper(alarmModel.AlarmSubscription, alarm_subscription)
-    alarm_dictionary_mapper = mapper(
+    mapper_registry.map_imperatively(alarmModel.ProbableCause, alarm_probable_cause)
+    mapper_registry.map_imperatively(alarmModel.AlarmSubscription, alarm_subscription)
+    alarm_dictionary_mapper = mapper_registry.map_imperatively(
         alarmModel.AlarmDictionary, alarm_dictionary,
         properties={
             "alarmDefinition": relationship(alarmdefinition_mapper,
@@ -272,9 +274,9 @@ def start_o2ims_mappers(engine=None):
     )
 
     # IMS Infrastructure Inventory Mappering
-    dm_mapper = mapper(ocloudModel.DeploymentManager, deploymentmanager)
-    resourcepool_mapper = mapper(ocloudModel.ResourcePool, resourcepool)
-    resourcetype_mapper = mapper(
+    dm_mapper = mapper_registry.map_imperatively(ocloudModel.DeploymentManager, deploymentmanager)
+    resourcepool_mapper = mapper_registry.map_imperatively(ocloudModel.ResourcePool, resourcepool)
+    resourcetype_mapper = mapper_registry.map_imperatively(
         ocloudModel.ResourceType, resourcetype,
         properties={
             #     "alarmDictionary": relationship(alarmModel.AlarmDictionary,
@@ -285,7 +287,7 @@ def start_o2ims_mappers(engine=None):
 
         }
     )
-    mapper(
+    mapper_registry.map_imperatively(
         ocloudModel.Ocloud,
         ocloud,
         properties={
@@ -293,7 +295,7 @@ def start_o2ims_mappers(engine=None):
             # "resourceTypes": relationship(resourcetype_mapper),
             "resourcePools": relationship(resourcepool_mapper)
         })
-    mapper(
+    mapper_registry.map_imperatively(
         ocloudModel.Resource,
         resource,
         properties={
@@ -301,7 +303,7 @@ def start_o2ims_mappers(engine=None):
             "resourcePools": relationship(resourcepool_mapper)
         }
     )
-    mapper(subModel.Subscription, subscription)
+    mapper_registry.map_imperatively(subModel.Subscription, subscription)
 
     if engine is not None:
         wait_for_metadata_ready(engine)

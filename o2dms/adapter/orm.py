@@ -28,13 +28,14 @@ from sqlalchemy import (
     exc
 )
 
-from sqlalchemy.orm import mapper
+from sqlalchemy.orm import mapper, registry
 from o2dms.domain import dms as dmsModel
 
 from o2common.helper import o2logging
 logger = o2logging.get_logger(__name__)
 
 metadata = MetaData()
+mapper_registry = registry()
 
 nfDeploymentDesc = Table(
     "nfDeploymentDesc",
@@ -101,10 +102,9 @@ def wait_for_metadata_ready(engine):
 
 def start_o2dms_mappers(engine=None):
     logger.info("Starting O2 DMS mappers")
-
-    mapper(dmsModel.NfDeploymentDesc, nfDeploymentDesc)
-    mapper(dmsModel.NfDeployment, nfDeployment)
-    mapper(dmsModel.NfOCloudVResource, nfOCloudVResource)
+    mapper_registry.map_imperatively(dmsModel.NfDeploymentDesc, nfDeploymentDesc)
+    mapper_registry.map_imperatively(dmsModel.NfDeployment, nfDeployment)
+    mapper_registry.map_imperatively(dmsModel.NfOCloudVResource, nfOCloudVResource)
 
     if engine is not None:
         wait_for_metadata_ready(engine)

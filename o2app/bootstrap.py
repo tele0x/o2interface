@@ -48,16 +48,23 @@ def bootstrap(
     publish: Callable = redis_eventpublisher.publish,
 ) -> messagebus.MessageBus:
 
-    if notifications is None:
-        notifications = SmoO2Notifications()
+    logger.info("[bootstrap] Check notification")
 
+    if notifications is None:
+        
+        notifications = SmoO2Notifications()
+    logger.info("[bootstrap] Check start_orm value: %s" % start_orm)
     if start_orm:
+        logger.info("[bootstrap] Get default engine if uow is by defaul")
         with uow:
             # get default engine if uow is by default
             engine = uow.session.get_bind()
-
+            
+            logger.info("[bootstrap] Wait for DB ready now")
             wait_for_db_ready(engine)
+            logger.info("[bootstrap] start_o2ims mapper")
             o2ims_orm.start_o2ims_mappers(engine)
+            logger.info("[bootstrap] start o2dms mapper")
             o2dms_orm.start_o2dms_mappers(engine)
 
     dependencies = {"uow": uow, "notifications": notifications,

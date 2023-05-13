@@ -18,27 +18,28 @@ disable_existing_loggers: False
 loggers:
     root:
       handlers: [console_handler, file_handler]
-      level: "WARNING"
+      level: "DEBUG"
       # propagate: False
-    # o2common:
-    #   handlers: [console_handler, file_handler]
-    #   level: "WARNING"
-    #   propagate: True
-    # o2ims:
-    #   handlers: [console_handler, file_handler]
-    #   level: "WARNING"
-    #   propagate: True
-    # o2dms:
-    #   handlers: [console_handler, file_handler]
-    #   level: "WARNING"
-    #   propagate: True
+      o2common:
+        handlers: [console_handler, file_handler]
+        level: "DEBUG"
+        propagate: True
+      o2ims:
+        handlers: [console_handler, file_handler]
+        level: "DEBUG"
+        propagate: True
+      o2dms:
+        handlers: [console_handler, file_handler]
+        level: "DEBUG"
+        propagate: True
 handlers:
     console_handler:
-      level: "NOTSET"
+      level: "DEBUG"
       class: "logging.StreamHandler"
       formatter: "standard"
+      stream: ext://sys.stdout
     file_handler:
-      level: "NOTSET"
+      level: "DEBUG"
       class: "logging.handlers.RotatingFileHandler"
       filename: "/var/log/orano2/o2.log"
       formatter: "standard"
